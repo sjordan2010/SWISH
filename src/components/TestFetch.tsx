@@ -1,10 +1,9 @@
 import { useQueries } from "@tanstack/react-query";
 import { fetchAlternates, fetchProps } from "@/utils/fetchData";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
-import Image from "next/image";
-import SwishBlack from "../../public/swish-black.png";
-import SwishWhite from "../../public/swish-white.png";
+import { PropData, CombinedData } from "../types";
+import { combineData } from "@/utils/combineData";
 
 export default function TestFetch() {
   const [{ isLoading: AltLoading, data: AltQuery }, { isLoading: PropLoading, data: PropQuery }] =
@@ -21,76 +20,13 @@ export default function TestFetch() {
       ],
     });
 
-  type PropData = {
-    playerName: string;
-    playerId: number;
-    teamId: number;
-    teamNickname: string;
-    teamAbbr: string;
-    statType: "points" | "rebounds" | "assists" | "steals" | "blocks";
-    statTypeId: number;
-    position: "PG" | "SG" | "SF" | "PF" | "C";
-    marketSuspended: 0 | 1;
-    line: number;
-  };
-
-  type CombinedData = PropData & {
-    lowLine: number;
-    highLine: number;
-  };
-
-  type AlternateData = {
-    line: number;
-    overOdds: number;
-    playerId: number;
-    playerName: string;
-    pushOdds: number;
-    statType: "points" | "rebounds" | "assists" | "steals" | "blocks";
-    statTypeId: number;
-    underOdds: number;
-  };
-
   const [selectedStatType, setSelectedStatType] = useState("all");
   const [selectedPosition, setSelectedPosition] = useState("all");
   const [selectedMarketSuspended, setSelectedMarketSuspended] = useState("all");
   const [searchValue, setSearchValue] = useState("");
-  const [allData, setAllData] = useState([]);
+  // const [allData, setAllData] = useState([]);
 
   if (AltLoading || PropLoading) return <div>Loading...</div>;
-
-  const combineData = (propData: PropData[], altData: AlternateData[]): CombinedData[] => {
-    const combined = [];
-
-    for (let i = 0; i < propData.length; i++) {
-      let lowLine = propData[i].line,
-        highLine = propData[i].line,
-        matched = false,
-        suspended = false;
-
-      for (let j = 0; j < altData.length; j++) {
-        if (propData[i].playerId === altData[j].playerId) {
-          if (propData[i].statTypeId === altData[j].statTypeId) {
-            if (propData[i].line === altData[j].line) {
-              matched = true;
-            }
-            if (altData[j].line > highLine) highLine = altData[j].line;
-            if (altData[j].line < lowLine) lowLine = altData[j].line;
-            if (
-              altData[j].overOdds < 0.4 &&
-              altData[j].pushOdds < 0.4 &&
-              altData[j].underOdds < 0.4
-            ) {
-              suspended = true;
-            }
-          }
-        }
-      }
-      if (suspended || !matched) propData[i].marketSuspended = 1;
-      combined.push({ ...propData[i], lowLine: lowLine, highLine: highLine });
-    }
-
-    return combined;
-  };
 
   const combinedData: CombinedData[] = combineData(PropQuery, AltQuery).filter(
     (item: PropData) =>
@@ -122,6 +58,7 @@ export default function TestFetch() {
   };
 
   const handleOverride = (playerID: number, statID: number): void => {
+    console.log('override')
     combinedData.forEach((market: CombinedData) => {
       if (market.playerId === playerID && market.statTypeId === statID) {
         if (market.marketSuspended === 1) return (market.marketSuspended = 0);
@@ -156,7 +93,12 @@ export default function TestFetch() {
         <div className="flex flex-col gap-2 w-full md:grid md:grid-cols-2 lg:grid-cols-4">
           <label className="flex items-center" htmlFor="stat-type">
             Filter by Market:&nbsp;&nbsp;
-            <select className="grow p-2 rounded-sm dark:bg-slate-700" id="stat-type" value={selectedStatType} onChange={handleStatTypeChange}>
+            <select
+              className="grow p-2 rounded-sm dark:bg-slate-700"
+              id="stat-type"
+              value={selectedStatType}
+              onChange={handleStatTypeChange}
+            >
               <option value="all">All</option>
               <option value="points">Points</option>
               <option value="assists">Assists</option>
@@ -167,7 +109,12 @@ export default function TestFetch() {
           </label>
           <label className="flex items-center" htmlFor="position">
             Filter by Position:&nbsp;&nbsp;
-            <select className="grow p-2 rounded-sm dark:bg-slate-700" id="position" value={selectedPosition} onChange={handlePositionChange}>
+            <select
+              className="grow p-2 rounded-sm dark:bg-slate-700"
+              id="position"
+              value={selectedPosition}
+              onChange={handlePositionChange}
+            >
               <option value="all">All</option>
               <option value="PG">PG</option>
               <option value="SG">SG</option>
@@ -231,10 +178,9 @@ export default function TestFetch() {
                 } text-center text-xs md:text-base hover:cursor-default w-fit`}
                 key={`${item.playerId}-${item.statTypeId}`}
               >
-                <td>
+                <td className="hover:cursor-pointer" onClick={() => handleOverride(item.playerId, item.statTypeId)}>
                   {item.marketSuspended === 1 ? (
                     <LockClosedIcon
-                      onClick={() => handleOverride(item.playerId, item.statTypeId)}
                       className=" h-5 w-5 text-slate-400 m-auto"
                     />
                   ) : (
@@ -257,10 +203,10 @@ export default function TestFetch() {
   );
 }
 
-// find all markets in alternates data where the playerID and statTypeID is the same
-// find the highest and lowest line out of those and print to table
-// if statTypeID or playerID doesn't exist within alternates => market is SUSPENDED
-// if marketSuspended = 1 => market is SUSPENDED
-// if over, under, and push are all under 0.4 => market is SUSPENDED
+// XXX find all markets in alternates data where the playerID and statTypeID is the same
+// XXX find the highest and lowest line out of those and print to table
+// XXX if statTypeID or playerID doesn't exist within alternates => market is SUSPENDED
+// XXX if marketSuspended = 1 => market is SUSPENDED
+// XXX if over, under, and push are all under 0.4 => market is SUSPENDED
 
 // need to figure out how to re render when combinedData is updated.
