@@ -1,15 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { fetchAlternates, fetchProps } from "@/utils/fetchData";
 import { useState } from "react";
 
 export default function TestFetch() {
-  const {
-    isLoading,
-    isError,
-    data: AlternateData,
-    error,
-  } = useQuery(["alternateData"], fetchAlternates);
-  const { data: PropData } = useQuery(["propData"], fetchProps);
+  const [{ isLoading: AltLoading, data: AltQuery }, { isLoading: PropLoading, data: PropQuery }] =
+    useQueries({
+      queries: [
+        {
+          queryKey: ["alternateData"],
+          queryFn: () => fetchAlternates(),
+        },
+        {
+          queryKey: ["propData"],
+          queryFn: () => fetchProps(),
+        },
+      ],
+    });
 
   type PropData = {
     playerName: string;
@@ -40,7 +46,9 @@ export default function TestFetch() {
   const [selectedMarketSuspended, setSelectedMarketSuspended] = useState("all");
   const [searchValue, setSearchValue] = useState("");
 
-  const filteredData: PropData[] = PropData.filter(
+  if (AltLoading || PropLoading) return <div>Loading...</div>;
+
+  const filteredData: PropData[] = PropQuery.filter(
     (item: PropData) =>
       (item.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.teamNickname.toLowerCase().includes(searchValue.toLowerCase())) &&
