@@ -153,10 +153,10 @@ export default function TestFetch() {
         />
       </picture>
       <section className="w-11/12 p-4 flex flex-col justify-center items-center">
-        <div>
-          <label htmlFor="stat-type">
-            Filter by Market:
-            <select id="stat-type" value={selectedStatType} onChange={handleStatTypeChange}>
+        <div className="flex flex-col gap-2 w-full md:grid md:grid-cols-2 lg:grid-cols-4">
+          <label className="flex items-center" htmlFor="stat-type">
+            Filter by Market:&nbsp;&nbsp;
+            <select className="grow p-2 rounded-sm dark:bg-slate-700" id="stat-type" value={selectedStatType} onChange={handleStatTypeChange}>
               <option value="all">All</option>
               <option value="points">Points</option>
               <option value="assists">Assists</option>
@@ -165,9 +165,9 @@ export default function TestFetch() {
               <option value="blocks">Blocks</option>
             </select>
           </label>
-          <label htmlFor="position">
-            Filter by Position:
-            <select id="position" value={selectedPosition} onChange={handlePositionChange}>
+          <label className="flex items-center" htmlFor="position">
+            Filter by Position:&nbsp;&nbsp;
+            <select className="grow p-2 rounded-sm dark:bg-slate-700" id="position" value={selectedPosition} onChange={handlePositionChange}>
               <option value="all">All</option>
               <option value="PG">PG</option>
               <option value="SG">SG</option>
@@ -176,9 +176,10 @@ export default function TestFetch() {
               <option value="C">C</option>
             </select>
           </label>
-          <label htmlFor="market-status">
-            Filter by Status:
+          <label className="flex items-center" htmlFor="market-status">
+            Filter by Status:&nbsp;&nbsp;
             <select
+              className="grow p-2 rounded-sm dark:bg-slate-700"
               id="market-status"
               value={selectedMarketSuspended}
               onChange={handleMarketSuspendedChange}
@@ -188,9 +189,10 @@ export default function TestFetch() {
               <option value="0">Open</option>
             </select>
           </label>
-          <label htmlFor="search">
-            Search:
+          <label className="flex items-center" htmlFor="search">
+            Search:&nbsp;&nbsp;
             <input
+              className="grow p-2 rounded-sm dark:bg-slate-700"
               id="search"
               type="search"
               value={searchValue}
@@ -207,7 +209,7 @@ export default function TestFetch() {
           Reset Filters
         </button>
       </section>
-      <div className="table-container w-11/12 overflow-x-scroll mb-12">
+      <section className="table-container w-11/12 overflow-x-scroll mb-12">
         <table className="w-full">
           <thead>
             <tr className="h-12 text-center text-slate-400">
@@ -250,7 +252,7 @@ export default function TestFetch() {
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
     </div>
   );
 }
