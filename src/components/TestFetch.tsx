@@ -1,6 +1,10 @@
 import { useQueries } from "@tanstack/react-query";
 import { fetchAlternates, fetchProps } from "@/utils/fetchData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
+import SwishBlack from "../../public/swish-black.png";
+import SwishWhite from "../../public/swish-white.png";
 
 export default function TestFetch() {
   const [{ isLoading: AltLoading, data: AltQuery }, { isLoading: PropLoading, data: PropQuery }] =
@@ -23,7 +27,7 @@ export default function TestFetch() {
     teamId: number;
     teamNickname: string;
     teamAbbr: string;
-    statType: "points" | "rebounds" | "assists" | "steals";
+    statType: "points" | "rebounds" | "assists" | "steals" | "blocks";
     statTypeId: number;
     position: "PG" | "SG" | "SF" | "PF" | "C";
     marketSuspended: 0 | 1;
@@ -41,7 +45,7 @@ export default function TestFetch() {
     playerId: number;
     playerName: string;
     pushOdds: number;
-    statType: "points" | "rebounds" | "assists" | "steals";
+    statType: "points" | "rebounds" | "assists" | "steals" | "blocks";
     statTypeId: number;
     underOdds: number;
   };
@@ -50,18 +54,9 @@ export default function TestFetch() {
   const [selectedPosition, setSelectedPosition] = useState("all");
   const [selectedMarketSuspended, setSelectedMarketSuspended] = useState("all");
   const [searchValue, setSearchValue] = useState("");
+  const [allData, setAllData] = useState([]);
 
   if (AltLoading || PropLoading) return <div>Loading...</div>;
-
-  // const filteredData: PropData[] = PropQuery.filter(
-  //   (item: PropData) =>
-  //     (item.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
-  //       item.teamNickname.toLowerCase().includes(searchValue.toLowerCase())) &&
-  //     (selectedStatType === "all" || item.statType === selectedStatType) &&
-  //     (selectedPosition === "all" || item.position === selectedPosition) &&
-  //     (selectedMarketSuspended === "all" ||
-  //       item.marketSuspended.toString() === selectedMarketSuspended)
-  // );
 
   const combineData = (propData: PropData[], altData: AlternateData[]): CombinedData[] => {
     const combined = [];
@@ -119,7 +114,6 @@ export default function TestFetch() {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value);
   };
-
   const handleReset = (): void => {
     setSelectedStatType("all");
     setSelectedPosition("all");
@@ -128,87 +122,135 @@ export default function TestFetch() {
   };
 
   const handleOverride = (playerID: number, statID: number): void => {
-    console.log("clicked id", playerID, statID);
     combinedData.forEach((market: CombinedData) => {
       if (market.playerId === playerID && market.statTypeId === statID) {
-        market.marketSuspended === 1 ? (market.marketSuspended = 0) : (market.marketSuspended = 1);
+        if (market.marketSuspended === 1) return (market.marketSuspended = 0);
+        else market.marketSuspended = 1;
       }
     });
-    console.log("PropQuery", PropQuery);
   };
 
+  const columns = [
+    <LockClosedIcon key="col0" className="h-6 w-6 text-slate-400 m-auto" />,
+    "TEAM",
+    "PLAYER",
+    "POS",
+    "MARKET",
+    "LINE",
+    "LOW",
+    "HIGH",
+  ];
+
   return (
-    <div>
-      <label htmlFor="stat-type">Filter by stat type:</label>
-      <select id="stat-type" value={selectedStatType} onChange={handleStatTypeChange}>
-        <option value="all">All</option>
-        <option value="points">Points</option>
-        <option value="rebounds">Rebounds</option>
-        <option value="assists">Assists</option>
-        <option value="steals">Steals</option>
-      </select>
-      <label htmlFor="position">Filter by Position: </label>
-      <select id="position" value={selectedPosition} onChange={handlePositionChange}>
-        <option value="all">All</option>
-        <option value="PG">PG</option>
-        <option value="SG">SG</option>
-        <option value="SF">SF</option>
-        <option value="PF">PF</option>
-        <option value="C">C</option>
-      </select>
-      <label htmlFor="market-status">Filter by Market Status:</label>
-      <select
-        id="market-status"
-        value={selectedMarketSuspended}
-        onChange={handleMarketSuspendedChange}
-      >
-        <option value="all">All</option>
-        <option value="1">Suspended</option>
-        <option value="0">Open</option>
-      </select>
-      <label htmlFor="search">
-        Search by Team or Player:
-        <input
-          id="search"
-          type="search"
-          value={searchValue}
-          onChange={handleSearchChange}
-          placeholder="player or team name..."
+    <div className="flex flex-col justify-center items-center w-11/12 my-12 p-1 rounded-sm md:p-4 container table-shadow">
+      <picture>
+        <source srcSet="swish-white.png" media="(prefers-color-scheme: dark)" />
+        <img
+          className="my-4"
+          src="swish-black.png"
+          width={250}
+          alt="Browser with large and small images of a coffee cup and plants"
         />
-      </label>
-      <button type="button" onClick={handleReset}>
-        Reset Filters
-      </button>
-      <table>
-        <thead>
-          <tr>
-            <th>Team</th>
-            <th>Player</th>
-            <th>Pos</th>
-            <th>Stat</th>
-            <th>Line</th>
-            <th>Low</th>
-            <th>High</th>
-            <th>Market</th>
-          </tr>
-        </thead>
-        <tbody>
-          {combinedData.map((item) => (
-            <tr key={`${item.playerId}-${item.statTypeId}`}>
-              <td>{item.teamAbbr}</td>
-              <td>{item.playerName}</td>
-              <td>{item.position}</td>
-              <td>{item.statType.charAt(0).toUpperCase() + item.statType.slice(1)}</td>
-              <td>{item.line}</td>
-              <td>{item.lowLine}</td>
-              <td>{item.highLine}</td>
-              <td onClick={() => handleOverride(item.playerId, item.statTypeId)}>
-                {item.marketSuspended === 1 ? "Suspended" : "Open"}
-              </td>
+      </picture>
+      <section className="w-11/12 p-4 flex flex-col justify-center items-center">
+        <div>
+          <label htmlFor="stat-type">
+            Filter by Market:
+            <select id="stat-type" value={selectedStatType} onChange={handleStatTypeChange}>
+              <option value="all">All</option>
+              <option value="points">Points</option>
+              <option value="assists">Assists</option>
+              <option value="rebounds">Rebounds</option>
+              <option value="steals">Steals</option>
+              <option value="blocks">Blocks</option>
+            </select>
+          </label>
+          <label htmlFor="position">
+            Filter by Position:
+            <select id="position" value={selectedPosition} onChange={handlePositionChange}>
+              <option value="all">All</option>
+              <option value="PG">PG</option>
+              <option value="SG">SG</option>
+              <option value="SF">SF</option>
+              <option value="PF">PF</option>
+              <option value="C">C</option>
+            </select>
+          </label>
+          <label htmlFor="market-status">
+            Filter by Status:
+            <select
+              id="market-status"
+              value={selectedMarketSuspended}
+              onChange={handleMarketSuspendedChange}
+            >
+              <option value="all">All</option>
+              <option value="1">Suspended</option>
+              <option value="0">Open</option>
+            </select>
+          </label>
+          <label htmlFor="search">
+            Search:
+            <input
+              id="search"
+              type="search"
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder="Player or Team"
+            />
+          </label>
+        </div>
+        <button
+          className="flex justify-end px-8 py-2 w-fit rounded-sm my-2 bg-slate-300 hover:bg-slate-400 shadow-md dark:bg-slate-700 dark:hover:bg-slate-800"
+          type="button"
+          onClick={handleReset}
+        >
+          Reset Filters
+        </button>
+      </section>
+      <div className="table-container w-11/12 overflow-x-scroll mb-12">
+        <table className="w-full">
+          <thead>
+            <tr className="h-12 text-center text-slate-400">
+              {columns.map((col, index) => (
+                <th
+                  className="text-sm md:text-base hover:cursor-default text-center"
+                  key={`col ${index}`}
+                >
+                  {col}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+            {combinedData.map((item) => (
+              <tr
+                className={`${
+                  item.marketSuspended === 1 ? "text-slate-400" : ""
+                } text-center text-xs md:text-base hover:cursor-default w-fit`}
+                key={`${item.playerId}-${item.statTypeId}`}
+              >
+                <td>
+                  {item.marketSuspended === 1 ? (
+                    <LockClosedIcon
+                      onClick={() => handleOverride(item.playerId, item.statTypeId)}
+                      className=" h-5 w-5 text-slate-400 m-auto"
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </td>
+                <td>{item.teamAbbr}</td>
+                <td>{item.playerName}</td>
+                <td>{item.position}</td>
+                <td>{item.statType.charAt(0).toUpperCase() + item.statType.slice(1)}</td>
+                <td>{item.line}</td>
+                <td>{item.lowLine}</td>
+                <td>{item.highLine}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -218,3 +260,5 @@ export default function TestFetch() {
 // if statTypeID or playerID doesn't exist within alternates => market is SUSPENDED
 // if marketSuspended = 1 => market is SUSPENDED
 // if over, under, and push are all under 0.4 => market is SUSPENDED
+
+// need to figure out how to re render when combinedData is updated.
