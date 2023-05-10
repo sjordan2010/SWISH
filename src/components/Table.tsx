@@ -4,7 +4,7 @@ import { LockClosedIcon } from "@heroicons/react/20/solid";
 
 interface TableProps {
   allData: CombinedData[];
-  handleOverride: any;
+  handleOverride: (playerID: number, statID: number) => void;
 }
 
 export default function Table({ handleOverride, allData }: TableProps) {
