@@ -1,13 +1,13 @@
 interface FiltersProps {
   selectedStatType: string;
-  handleStatTypeChange: any;
+  handleStatTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   selectedPosition: string;
-  handlePositionChange: any;
+  handlePositionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   selectedMarketSuspended: string;
-  handleMarketSuspendedChange: any;
+  handleMarketSuspendedChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   searchValue: string;
-  handleSearchChange: any;
-  handleReset: any;
+  handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleReset: () => void;
 }
 
 export default function Filters({

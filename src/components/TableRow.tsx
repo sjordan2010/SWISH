@@ -2,35 +2,35 @@ import { CombinedData } from "@/types";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 
 interface TableRowProps {
-  item: CombinedData;
-  handleOverride: any;
+  market: CombinedData;
+  handleOverride: (playerID: number, statID: number) => void;
 }
 
-export default function TableRow({ item, handleOverride }: TableRowProps) {
+export default function TableRow({ market, handleOverride }: TableRowProps) {
   return (
     <tr
       className={`${
-        item.marketSuspended === 1 ? "text-slate-400" : ""
+        market.marketSuspended === 1 ? "text-slate-400" : ""
       } text-center text-xs md:text-base hover:cursor-default w-fit`}
-      key={`${item.playerId}-${item.statTypeId}`}
+      key={`${market.playerId}-${market.statTypeId}`}
     >
       <td
         className="hover:cursor-pointer"
-        onClick={() => handleOverride(item.playerId, item.statTypeId)}
+        onClick={() => handleOverride(market.playerId, market.statTypeId)}
       >
-        {item.marketSuspended === 1 ? (
+        {market.marketSuspended === 1 ? (
           <LockClosedIcon className=" h-5 w-5 text-slate-400 m-auto" />
         ) : (
           <></>
         )}
       </td>
-      <td>{item.teamAbbr}</td>
-      <td>{item.playerName}</td>
-      <td>{item.position}</td>
-      <td>{item.statType.charAt(0).toUpperCase() + item.statType.slice(1)}</td>
-      <td>{item.line}</td>
-      <td>{item.lowLine}</td>
-      <td>{item.highLine}</td>
+      <td>{market.teamAbbr}</td>
+      <td>{market.playerName}</td>
+      <td>{market.position}</td>
+      <td>{market.statType.charAt(0).toUpperCase() + market.statType.slice(1)}</td>
+      <td>{market.line}</td>
+      <td>{market.lowLine}</td>
+      <td>{market.highLine}</td>
     </tr>
   );
 }

@@ -3,11 +3,11 @@ import TableRow from "./TableRow";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 
 interface TableProps {
-  combinedData: CombinedData[];
+  allData: CombinedData[];
   handleOverride: any;
 }
 
-export default function Table({ combinedData, handleOverride }: TableProps) {
+export default function Table({ handleOverride, allData }: TableProps) {
   const columns = [
     <LockClosedIcon key="col0" className="h-6 w-6 text-slate-400 m-auto" />,
     "TEAM",
@@ -35,10 +35,10 @@ export default function Table({ combinedData, handleOverride }: TableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-          {combinedData.map((item: CombinedData) => (
+          {allData.map((market: CombinedData) => (
             <TableRow
-              key={`${item.playerId}-${item.statTypeId}`}
-              item={item}
+              key={`${market.playerId}-${market.statTypeId}`}
+              market={market}
               handleOverride={handleOverride}
             />
           ))}
