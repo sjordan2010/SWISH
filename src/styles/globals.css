@@ -30,6 +30,7 @@ tbody tr:hover {
 tbody td {
   position: relative;
   padding: 4px 10px;
+  min-width: 40px;
 }
 
 tbody td:hover:before {

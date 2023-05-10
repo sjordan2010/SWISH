@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { PropData, CombinedData, AlternateData } from "../types";
 import { combineData } from "@/utils/combineData";
 import Table from "./Table";
@@ -16,16 +16,23 @@ export default function MainContainer({ altQuery, propQuery }: MainProps) {
   const [searchValue, setSearchValue] = useState("");
 
   const combinedData: CombinedData[] = combineData(propQuery, altQuery).filter(
-    (item: PropData) =>
-      (item.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.teamNickname.toLowerCase().includes(searchValue.toLowerCase())) &&
-      (selectedStatType === "all" || item.statType === selectedStatType) &&
-      (selectedPosition === "all" || item.position === selectedPosition) &&
+    (market: PropData) =>
+      (market.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
+        market.teamNickname.toLowerCase().includes(searchValue.toLowerCase())) &&
+      (selectedStatType === "all" || market.statType === selectedStatType) &&
+      (selectedPosition === "all" || market.position === selectedPosition) &&
       (selectedMarketSuspended === "all" ||
-        item.marketSuspended.toString() === selectedMarketSuspended)
+        market.marketSuspended.toString() === selectedMarketSuspended)
   );
 
+
+
   const [allData, setAllData] = useState<CombinedData[]>(combinedData);
+
+    // useEffect(() => {
+    //   setAllData(prev => combinedData)
+    // }, [combinedData])
+
 
   const handleStatTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatType(event.target.value);
@@ -46,7 +53,30 @@ export default function MainContainer({ altQuery, propQuery }: MainProps) {
     setSearchValue("");
   };
 
+  const handleMassOverride = (): void => {
+    setAllData((prev: CombinedData[]) => {
+      if (prev[0].marketSuspended === 0) {
+        const newData: CombinedData[] = prev.map((market) => {
+          return {
+            ...market,
+            marketSuspended: 1,
+          };
+        });
+        return newData;
+      } else {
+        const newData: CombinedData[] = prev.map((market) => {
+          return {
+            ...market,
+            marketSuspended: 0,
+          };
+        });
+        return newData;
+      }
+    });
+  };
+
   const handleOverride = (playerID: number, statID: number): void => {
+    
     setAllData((prev: CombinedData[]) => {
       const newData: CombinedData[] = prev.map((market) => {
         if (market.playerId === playerID && market.statTypeId === statID) {
@@ -60,7 +90,7 @@ export default function MainContainer({ altQuery, propQuery }: MainProps) {
       return newData;
     });
   };
-
+  
   return (
     <div className="flex flex-col justify-center items-center w-11/12 my-12 p-1 rounded-sm md:p-4 container table-shadow">
       <picture>
@@ -78,7 +108,12 @@ export default function MainContainer({ altQuery, propQuery }: MainProps) {
         handleSearchChange={handleSearchChange}
         handleReset={handleReset}
       />
-      <Table handleOverride={handleOverride} allData={allData} />
+      <Table
+        handleOverride={handleOverride}
+        handleMassOverride={handleMassOverride}
+        // allData={allData} // filters don't work with this
+        allData={combinedData} // override doesn't work with this... but when I switch back to allData, override worked, but wouldn't show here
+      />
     </div>
   );
 }
