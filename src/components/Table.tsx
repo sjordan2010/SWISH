@@ -31,6 +31,7 @@ export default function Table({
                   key="col0"
                   data-tooltip-id="massRelease"
                   data-tooltip-content="Release All Markets"
+                  
                 />
               ) : (
                 <LockClosedIcon
@@ -41,8 +42,8 @@ export default function Table({
                   data-tooltip-content="Suspend All Markets"
                 />
               )}
-              <Tooltip id="massRelease" />
-              <Tooltip id="massSuspend" />
+              <Tooltip id="massRelease" variant="success" />
+              <Tooltip id="massSuspend" variant="error" />
             </th>
             {columns.map((col, index) => (
               <th

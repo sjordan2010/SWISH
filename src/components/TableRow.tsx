@@ -1,6 +1,7 @@
 import { CombinedData } from "@/types";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
+import { Tooltip } from "react-tooltip";
 
 interface TableRowProps {
   market: CombinedData;
@@ -19,13 +20,15 @@ export default function TableRow({ market, handleOverride, index }: TableRowProp
         className="hover:cursor-pointer"
         onClick={() => handleOverride(market.playerId, market.statTypeId)}
       >
-        {market.marketSuspended === 1 ? (
-          <LockClosedIcon className=" h-5 w-5 text-slate-400 m-auto" />
+        {market.marketSuspended === 1 ? <LockClosed /> : <ActiveButton />}
+      </td>
+      <td className="flex justify-center items-center h-full">
+        {market.teamAbbr === "LAL" ? (
+          <Image alt="LAL logo" src="/LAL-logo.svg" height={45} width={45} />
         ) : (
-          <ActiveButton />
+          <Image alt="GSW logo" src="/GSW-logo.svg" height={30} width={30} />
         )}
       </td>
-      <td className="flex justify-center items-center h-full">{market.teamAbbr === "LAL" ? <Image alt="LAL logo" src="/LAL-logo.svg" height={45} width={45} /> : <Image alt="GSW logo" src="/GSW-logo.svg" height={30} width={30} />}</td>
       <td className="">
         {market.playerName}&nbsp;&nbsp;<span className="text-slate-400"> {market.position} </span>
       </td>
@@ -39,8 +42,28 @@ export default function TableRow({ market, handleOverride, index }: TableRowProp
 
 function ActiveButton() {
   return (
-    <button className="m-auto text-xs text-white w-fit  bg-green-500 px-3 py-1 rounded-full">
-      ACTIVE
-    </button>
+    <>
+      <button
+        className="m-auto text-xs text-white w-fit  bg-green-500 px-3 py-1 rounded-full hover:bg-green-400"
+        data-tooltip-id="activeBtn"
+        data-tooltip-content="Suspend this market"
+      >
+        ACTIVE
+      </button>
+      <Tooltip id="activeBtn" variant="error" />
+    </>
+  );
+}
+function LockClosed() {
+  return (
+    <>
+      <LockClosedIcon
+        className=" h-5 w-5 text-slate-400 m-auto"
+        data-tooltip-id="suspendIcon"
+        data-tooltip-content="Release this market"
+      />
+
+      <Tooltip id="suspendIcon" variant="success" />
+    </>
   );
 }
