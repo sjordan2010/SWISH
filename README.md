@@ -39,6 +39,6 @@ Note: Data management should be done in state - the JSON files do not need to be
 
 ## Stretch
 - Reshape data after fetching into an object and optimize combining functionality
-- Team logos
+- Team logos - not hard-coded
 - Sorting functionality
 - Reset back to original state (market status)

@@ -1,5 +1,6 @@
 import { CombinedData } from "@/types";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
 
 interface TableRowProps {
   market: CombinedData;
@@ -11,7 +12,7 @@ export default function TableRow({ market, handleOverride, index }: TableRowProp
   return (
     <tr
       className={`${market.marketSuspended === 1 ? "text-slate-400" : ""} 
-    text-left text-xs md:text-base hover:cursor-default w-fit`}
+    text-left text-xs align-middle md:text-base hover:cursor-default w-fit`}
       key={`${market.playerId}-${market.statTypeId}`}
     >
       <td
@@ -24,8 +25,8 @@ export default function TableRow({ market, handleOverride, index }: TableRowProp
           <ActiveButton />
         )}
       </td>
-      <td>{market.teamAbbr}</td>
-      <td>
+      <td className="flex justify-center items-center h-full">{market.teamAbbr === "LAL" ? <Image alt="LAL logo" src="/LAL-logo.svg" height={45} width={45} /> : <Image alt="GSW logo" src="/GSW-logo.svg" height={30} width={30} />}</td>
+      <td className="">
         {market.playerName}&nbsp;&nbsp;<span className="text-slate-400"> {market.position} </span>
       </td>
       <td>{market.statType.charAt(0).toUpperCase() + market.statType.slice(1)}</td>

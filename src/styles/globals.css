@@ -33,6 +33,7 @@ tbody td {
   position: relative;
   padding: 4px 10px;
   min-width: 85px;
+  min-height: 56px;
 }
 
 tbody td:hover:before {
