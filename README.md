@@ -1,5 +1,18 @@
 # STEFAN JORDAN => Swish Analytics FE Coding Assessment
 
+## Directions
+1. Clone the repository to your local machine.
+2. Open your terminal and navigate to the repository directory.
+3. Run `npm i` in your terminal to install dependencies.
+4. Run `npm run dev` in the terminal to start the development server.
+5. Open your browser and navigate to [localhost:3000](http://localhost:3000) to view the app.
+
+## Stretch
+- Reshape data after fetching into an object and optimize combining functionality
+- Team logos - not hard-coded
+- Sorting functionality
+- Reset back to original state (market status)
+
 ## Overview
 You’ll find 2 JSON files attached of mock data from an NBA game representing 2 API endpoints Swish offers:
 - `props.json`:
@@ -29,16 +42,3 @@ Additionally, for each market/row, add the ability to manually suspend or releas
 - Russell Westbrook’s assists market, initially unsuspended, could manually be suspended
 
 Note: Data management should be done in state - the JSON files do not need to be updated.
-
-
-## Directions
-1. Clone the repository to your local machine.
-2. Open your terminal and navigate to the repository directory.
-3. Run `npm run dev` in the terminal to start the development server.
-4. Open your browser and navigate to [localhost:3000](http://localhost:3000) to view the app.
-
-## Stretch
-- Reshape data after fetching into an object and optimize combining functionality
-- Team logos - not hard-coded
-- Sorting functionality
-- Reset back to original state (market status)
