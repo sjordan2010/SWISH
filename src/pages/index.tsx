@@ -5,6 +5,7 @@ import { useQueries } from "@tanstack/react-query";
 import { fetchAlternates, fetchProps } from "@/utils/fetchData";
 import { combineData } from "@/utils/combineData";
 import Header from "@/components/Header";
+import Spinner from "@/components/Spinner";
 
 const lato = Lato({ subsets: ["latin"], weight: ["100", "300", "400", "700", "900"] });
 
@@ -23,7 +24,7 @@ export default function Home() {
       ],
     });
 
-  if (AltLoading || PropLoading) return <div>Loading...</div>;
+  if (AltLoading || PropLoading) return <Spinner />
 
   return (
     <>
@@ -39,3 +40,5 @@ export default function Home() {
     </>
   );
 }
+
+
