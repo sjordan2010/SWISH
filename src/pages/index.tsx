@@ -1,10 +1,12 @@
 import MainContainer from "../components/MainContainer";
 import Head from "next/head";
-import { Rubik } from "next/font/google";
+import { Lato } from "next/font/google";
 import { useQueries } from "@tanstack/react-query";
 import { fetchAlternates, fetchProps } from "@/utils/fetchData";
+import { combineData } from "@/utils/combineData";
+import Header from "@/components/Header";
 
-const rubik = Rubik({ subsets: ["latin"] });
+const lato = Lato({ subsets: ["latin"], weight: ["100", "300", "400", "700", "900"] });
 
 export default function Home() {
   const [{ isLoading: AltLoading, data: AltQuery }, { isLoading: PropLoading, data: PropQuery }] =
@@ -28,9 +30,11 @@ export default function Home() {
       <Head>
         <title>Stefan Jordan - Swish Analytics</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" sizes="32x32" href="/favicon.ico"></link>
       </Head>
-      <main className={`flex min-h-screen flex-col items-center ${rubik.className}`}>
-        <MainContainer altQuery={AltQuery} propQuery={PropQuery} />
+      <Header />
+      <main className={`flex min-h-screen flex-col items-center ${lato.className}`}>
+        <MainContainer combinedData={combineData(PropQuery, AltQuery)} />
       </main>
     </>
   );

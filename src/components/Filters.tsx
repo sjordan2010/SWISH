@@ -1,28 +1,30 @@
+import type { Position, StatType } from "@/types";
+
 interface FiltersProps {
-  selectedStatType: string;
-  handleStatTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  selectedStatType: StatType;
+  setSelectedStatType: (v: StatType) => void;
   selectedPosition: string;
-  handlePositionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  setSelectedPosition: (v: Position) => void;
   selectedMarketSuspended: string;
-  handleMarketSuspendedChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  setSelectedMarketSuspended: (v: string) => void;
   searchValue: string;
-  handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleReset: () => void;
+  setSearchValue: (v: string) => void;
+  handleResetFilters: () => void;
 }
 
 export default function Filters({
   selectedStatType,
-  handleStatTypeChange,
+  setSelectedStatType,
   selectedPosition,
-  handlePositionChange,
+  setSelectedPosition,
   selectedMarketSuspended,
-  handleMarketSuspendedChange,
+  setSelectedMarketSuspended,
   searchValue,
-  handleSearchChange,
-  handleReset,
+  setSearchValue,
+  handleResetFilters,
 }: FiltersProps) {
   return (
-    <section className="w-11/12 p-4 flex flex-col justify-center items-center">
+    <section className="w-full p-8 flex flex-col justify-center items-center">
       <div className="flex flex-col gap-2 w-full md:grid md:grid-cols-2 lg:grid-cols-4">
         <label className="flex items-center" htmlFor="stat-type">
           Filter by Market:&nbsp;&nbsp;
@@ -30,7 +32,7 @@ export default function Filters({
             className="grow p-2 rounded-sm dark:bg-slate-700"
             id="stat-type"
             value={selectedStatType}
-            onChange={handleStatTypeChange}
+            onChange={(e) => setSelectedStatType(e.target.value as StatType)}
           >
             <option value="all">All</option>
             <option value="points">Points</option>
@@ -46,7 +48,7 @@ export default function Filters({
             className="grow p-2 rounded-sm dark:bg-slate-700"
             id="position"
             value={selectedPosition}
-            onChange={handlePositionChange}
+            onChange={(e) => setSelectedPosition(e.target.value as Position)}
           >
             <option value="all">All</option>
             <option value="PG">PG</option>
@@ -62,7 +64,7 @@ export default function Filters({
             className="grow p-2 rounded-sm dark:bg-slate-700"
             id="market-status"
             value={selectedMarketSuspended}
-            onChange={handleMarketSuspendedChange}
+            onChange={(e) => setSelectedMarketSuspended(e.target.value)}
           >
             <option value="all">All</option>
             <option value="1">Suspended</option>
@@ -76,15 +78,15 @@ export default function Filters({
             id="search"
             type="search"
             value={searchValue}
-            onChange={handleSearchChange}
+            onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Player or Team"
           />
         </label>
       </div>
       <button
-        className="flex justify-end px-8 py-2 w-fit rounded-sm my-2 bg-slate-300 hover:bg-slate-400 shadow-md dark:bg-slate-700 dark:hover:bg-slate-800"
+        className="flex justify-center px-8 py-2 my-2 w-full md:w-fit rounded-sm bg-slate-300 hover:bg-slate-400 shadow-md dark:bg-slate-700 dark:hover:bg-slate-800"
         type="button"
-        onClick={handleReset}
+        onClick={handleResetFilters}
       >
         Reset Filters
       </button>

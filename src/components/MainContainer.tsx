@@ -1,118 +1,82 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { PropData, CombinedData, AlternateData } from "../types";
-import { combineData } from "@/utils/combineData";
+import { useState, useMemo } from "react";
+import type { CombinedData, Position, StatType } from "../types";
 import Table from "./Table";
 import Filters from "./Filters";
 
-interface MainProps {
-  altQuery: AlternateData[];
-  propQuery: PropData[];
-}
+type MainProps = { combinedData: CombinedData[] };
 
-export default function MainContainer({ altQuery, propQuery }: MainProps) {
-  const [selectedStatType, setSelectedStatType] = useState("all");
-  const [selectedPosition, setSelectedPosition] = useState("all");
+export default function MainContainer({ combinedData }: MainProps) {
+  const [selectedStatType, setSelectedStatType] = useState<StatType>("all");
+  const [selectedPosition, setSelectedPosition] = useState<Position>("all");
   const [selectedMarketSuspended, setSelectedMarketSuspended] = useState("all");
+  const [allSuspended, toggleAllSuspended] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
-
-  const combinedData: CombinedData[] = combineData(propQuery, altQuery).filter(
-    (market: PropData) =>
-      (market.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
-        market.teamNickname.toLowerCase().includes(searchValue.toLowerCase())) &&
-      (selectedStatType === "all" || market.statType === selectedStatType) &&
-      (selectedPosition === "all" || market.position === selectedPosition) &&
-      (selectedMarketSuspended === "all" ||
-        market.marketSuspended.toString() === selectedMarketSuspended)
-  );
-
-
 
   const [allData, setAllData] = useState<CombinedData[]>(combinedData);
 
-    // useEffect(() => {
-    //   setAllData(prev => combinedData)
-    // }, [combinedData])
+  const filteredData = useMemo(
+    () =>
+      allData.filter(
+        (market) =>
+          (market.playerName.toLowerCase().includes(searchValue.toLowerCase()) ||
+            market.teamNickname.toLowerCase().includes(searchValue.toLowerCase()) || 
+            market.teamAbbr.toLowerCase().includes(searchValue.toLowerCase())) &&
+          (selectedStatType === "all" || market.statType === selectedStatType) &&
+          (selectedPosition === "all" || market.position === selectedPosition) &&
+          (selectedMarketSuspended === "all" ||
+            market.marketSuspended.toString() === selectedMarketSuspended)
+      ),
+    [allData, selectedStatType, selectedPosition, selectedMarketSuspended, searchValue]
+  );
 
-
-  const handleStatTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedStatType(event.target.value);
-  };
-  const handlePositionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPosition(event.target.value);
-  };
-  const handleMarketSuspendedChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMarketSuspended(event.target.value);
-  };
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
-  };
-  const handleReset = (): void => {
+  const handleResetFilters = () => {
     setSelectedStatType("all");
     setSelectedPosition("all");
     setSelectedMarketSuspended("all");
     setSearchValue("");
   };
 
-  const handleMassOverride = (): void => {
-    setAllData((prev: CombinedData[]) => {
-      if (prev[0].marketSuspended === 0) {
-        const newData: CombinedData[] = prev.map((market) => {
-          return {
-            ...market,
-            marketSuspended: 1,
-          };
-        });
-        return newData;
-      } else {
-        const newData: CombinedData[] = prev.map((market) => {
-          return {
-            ...market,
-            marketSuspended: 0,
-          };
-        });
-        return newData;
-      }
-    });
+  const toggleMassOverride = () => {
+    const marketSuspended = allSuspended ? 0 : 1;
+    const dataWithOverrides = allData.map((market) => ({
+      ...market,
+      marketSuspended,
+    }));
+    setAllData(dataWithOverrides);
+    toggleAllSuspended((prev) => !prev);
   };
 
-  const handleOverride = (playerID: number, statID: number): void => {
-    
-    setAllData((prev: CombinedData[]) => {
-      const newData: CombinedData[] = prev.map((market) => {
-        if (market.playerId === playerID && market.statTypeId === statID) {
-          return {
-            ...market,
-            marketSuspended: market.marketSuspended === 1 ? 0 : 1,
-          };
-        }
-        return market;
-      });
-      return newData;
+  const handleOverride = (playerID: number, statID: number) => {
+    const newData = allData.map((market) => {
+      if (market.playerId === playerID && market.statTypeId === statID) {
+        return {
+          ...market,
+          marketSuspended: market.marketSuspended ? 0 : 1,
+        };
+      }
+      return market;
     });
+    setAllData(newData);
   };
-  
+
   return (
-    <div className="flex flex-col justify-center items-center w-11/12 my-12 p-1 rounded-sm md:p-4 container table-shadow">
-      <picture>
-        <source srcSet="swish-white.png" media="(prefers-color-scheme: dark)" />
-        <img className="my-4" src="swish-black.png" width={250} alt="Swish analytics logo" />
-      </picture>
+    <div className="flex flex-col justify-center items-center w-11/12 my-32 p-1 rounded-sm md:p-4 md:pb-12 primary-bg table-shadow">
       <Filters
         selectedStatType={selectedStatType}
-        handleStatTypeChange={handleStatTypeChange}
+        setSelectedStatType={setSelectedStatType}
         selectedPosition={selectedPosition}
-        handlePositionChange={handlePositionChange}
+        setSelectedPosition={setSelectedPosition}
         selectedMarketSuspended={selectedMarketSuspended}
-        handleMarketSuspendedChange={handleMarketSuspendedChange}
+        setSelectedMarketSuspended={setSelectedMarketSuspended}
         searchValue={searchValue}
-        handleSearchChange={handleSearchChange}
-        handleReset={handleReset}
+        setSearchValue={setSearchValue}
+        handleResetFilters={handleResetFilters}
       />
       <Table
         handleOverride={handleOverride}
-        handleMassOverride={handleMassOverride}
-        // allData={allData} // filters don't work with this
-        allData={combinedData} // override doesn't work with this... but when I switch back to allData, override worked, but wouldn't show here
+        toggleMassOverride={toggleMassOverride}
+        filteredData={filteredData}
+        allSuspended={allSuspended}
       />
     </div>
   );
