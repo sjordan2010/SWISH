@@ -1,4 +1,4 @@
-# STEFAN JORDAN => Swish Analytics FE Coding Assessment
+# STEFAN JORDAN => Swish Frontend
 
 ## Directions
 1. Clone the repository to your local machine.
